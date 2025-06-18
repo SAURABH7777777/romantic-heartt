@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>For My Wifey</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #FFB6C1;
+            touch-action: manipulation;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #message {
+            position: absolute;
+            top: 30px;
+            width: 100%;
+            text-align: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: black;
+        }
+        #heartText {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            width: 80%;
+        }
+        #bottomMessage {
+            position: absolute;
+            bottom: 50px;
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div id="message">For My Wifey</div>
+    <div id="heartText">I love you Eshi</div>
+    <div id="bottomMessage">You are the love of my life!</div>
+    <canvas id="heartCanvas"></canvas>
+
+<<audio id="bgMusic" loop>
+    <source src="love_me_like_you_do.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+ <button id="playButton">♪ Play Our Song ♪</button>
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+        const message = document.getElementById('message');
+        const heartText = document.getElementById('heartText');
+        const bottomMessage = document.getElementById('bottomMessage');
+        const bgMusic = document.getElementById('bgMusic');
+        
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Colors
+        const LIGHT_PINK = '#FFB6C1';
+        const RED = '#FF0000';
+        const DARK_RED = '#8B0000';
+        
+        // Heart parameters
+        let heartScale = 10;
+        let pulseSpeed = 0.05;
+        let frameCount = 0;
+        
+        // Romantic messages
+        const messages = [
+            "You are the love of my life!",
+            "My heart beats only for you",
+            "Forever yours",
+            "Eternally yours"
+        ];
+        
+        // Draw heart function
+        function drawHeart(x, y, size, color) {
+            ctx.beginPath();
+            for (let t = 0; t < 2 * Math.PI; t += 0.01) {
+                const heartX = 16 * Math.pow(Math.sin(t), 3);
+                const heartY = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                
+                const px = x + heartX * size;
+                const py = y + heartY * size;
+                
+                if (t === 0) {
+                    ctx.moveTo(px, py);
+                } else {
+                    ctx.lineTo(px, py);
+                }
+            }
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = DARK_RED;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        // Animation loop
+        function animate() {
+            // Clear canvas
+            ctx.fillStyle = LIGHT_PINK;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Calculate pulsing effect
+            const pulse = Math.sin(frameCount * pulseSpeed) * 0.5;
+            const currentScale = heartScale * (1 + pulse * 0.1);
+            
+            // Draw main heart
+            drawHeart(canvas.width / 2, canvas.height / 2, currentScale, RED);
+            
+            // Update messages
+            if (frameCount % 120 === 0) {
+                bottomMessage.textContent = messages[(frameCount / 120) % messages.length];
+            }
+            
+            // Draw floating hearts
+            for (let i = 0; i < 5; i++) {
+                const x = canvas.width/4 + (frameCount + i*60) % (canvas.width/2);
+                const y = 150 + 50 * Math.sin((frameCount + i*30) * 0.02);
+                const smallScale = 2 + Math.sin((frameCount + i*40) * 0.05);
+                drawHeart(x, y, smallScale, RED);
+            }
+            
+            frameCount++;
+            requestAnimationFrame(animate);
+        }
+        
+        // Start music when user interacts (mobile requirement)
+        function startMusic() {
+            bgMusic.volume = 0.5;
+            bgMusic.play().catch(e => console.log("Auto-play prevented:", e));
+            document.removeEventListener('click', startMusic);
+            document.removeEventListener('touchstart', startMusic);
+        }
+        
+        // Set up event listeners for mobile
+        document.addEventListener('click', startMusic);
+        document.addEventListener('touchstart', startMusic);
+        
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
